@@ -1,0 +1,76 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using System.Reflection
+
+<table class="table">
+    <thead>
+        <tr>
+            @foreach (var name in typeof(person).GetProperties())
+            {
+                <th scope="col">
+                    @getDescription(name)
+                    @if (name.Name == key.Key & key.Value)
+                    {
+                        <button class="btn btn-sm btn-light text-dark ml-3" @onclick="()=>orderBy(name.Name)">
+                            <i class="fas fa-angle-down"></i>
+                        </button>
+                    }
+                    else if (name.Name == key.Key & !key.Value)
+                    {
+                        <button class="btn btn-sm btn-light text-dark ml-3" @onclick="()=>orderBy(name.Name)">
+                            <i class="fas fa-angle-up"></i>
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-sm btn-light text-dark ml-3" @onclick="()=>orderBy(name.Name)">
+                            <i class="fas fa-angle-right"></i>
+                        </button>
+                    }
+                </th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var person in people)
+        {
+            <tr>
+                <th scope="row">@person.id</th>
+                <td>@person.name</td>
+                <td>@person.lastname</td>
+                <td>@person.age</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code{
+    List<person> people = new List<person> {
+        new person{id=0, name="Сергей", lastname="Горбулёв", age=40 },
+        new person{id=1, name="Максим", lastname="Петров", age=20 },
+        new person{id=2, name="Алексей", lastname="Сидоров", age=18 },
+        new person{id=3, name="Александр", lastname="Иванов", age=80 },
+        new person{id=4, name="Алёна", lastname="Горбулёва", age=35 }
+    };
+
+    KeyValuePair<string, bool> key = new KeyValuePair<string, bool>(key: "", value: false);
+
+    string getDescription(PropertyInfo property)
+    {
+        var description = property.GetCustomAttributes(typeof(DisplayAttribute), true).Cast<DisplayAttribute>().SingleOrDefault();
+        return description != null ? description.Name : property.Name;
+    }
+
+    void orderBy(string parameter)
+    {
+        if (key.Key == parameter & key.Value)
+        {
+            people = people.OrderByDescending(p => p.GetType().GetProperty(parameter).GetValue(p)).ToList();
+            key = new KeyValuePair<string, bool>(key: parameter, value: false);
+        }
+        else
+        {
+            people = people.OrderBy(p => p.GetType().GetProperty(parameter).GetValue(p)).ToList();
+            key = new KeyValuePair<string, bool>(key: parameter, value: true);
+        }
+    }
+}

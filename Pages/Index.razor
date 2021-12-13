@@ -1,0 +1,25 @@
+﻿@page "/"
+
+<CustomTable items="people.ToList<object>()" Title="Список пользователей" />
+
+<CustomTable2 items="books.ToList<object>()" Title="Список книг" />
+
+@code
+{
+    List<person> people = new List<person>
+{
+        new person{id=0, name="Сергей", lastname="Горбулёв", age=40 },
+        new person{id=1, name="Максим", lastname="Петров", age=20 },
+        new person{id=2, name="Алексей", lastname="Сидоров", age=18 },
+        new person{id=3, name="Александр", lastname="Иванов", age=80 },
+        new person{id=4, name="Алёна", lastname="Горбулёва", age=35 }
+    };
+
+    List<book> books = new List<book>
+    {
+        new book{ id=0, author="Иванов", title="Как создать сервис"},
+        new book{ id=1, author="Сидоров", title="Проектируем магазин"},
+        new book{ id=2, author="Петров", title="Зачем строить дом?"}
+    };
+}
+

@@ -1,0 +1,86 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using System.Reflection
+
+<h4>@Title</h4>
+
+<div class="bg-light text-dark rounded mb-3 pl-2 pr-2 pb-1">
+    <table class="table table-sm table-borderless">
+        <thead>
+            <tr>
+                @foreach (var name in items.FirstOrDefault().GetType().GetProperties())
+                {
+                    <th>
+                        @if (name.Name == key.Key & key.Value)
+                        {
+                            <span class="mr-2">@getDescription(name)</span>
+                            <button class="btn btn-sm btn-light text-dark" @onclick="() => orderBy(name.Name)">
+                                <i class="fas fa-angle-down"></i>
+                            </button>
+                        }
+                        else if (name.Name == key.Key & !key.Value)
+                        {
+                            <span class="mr-2">@getDescription(name)</span>
+                            <button class="btn btn-sm btn-light text-dark" @onclick="() => orderBy(name.Name)">
+                                <i class="fas fa-angle-up"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <span class="mr-2">@getDescription(name)</span>
+                            <button class="btn btn-sm btn-light text-dark" @onclick="() => orderBy(name.Name)">
+                                <i class="fas fa-angle-right"></i>
+                            </button>
+                        }
+                    </th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in items)
+            {
+                <tr>
+                    @foreach (var property in item.GetType().GetProperties())
+                    {
+                        <th class="mb-1">@property.GetValue(item)</th>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+
+
+@code{
+    [Parameter]
+    public string Title { get; set; }
+    [Parameter]
+    public List<object> items { get; set; } = new List<object>();
+
+    KeyValuePair<string, bool> key = new KeyValuePair<string, bool>(key: "", value: false);
+
+
+    string getDescription(PropertyInfo property)
+    {
+        var description = property.GetCustomAttributes(typeof(DisplayAttribute), true).Cast<DisplayAttribute>
+            ().SingleOrDefault();
+        return description != null ? description.Name : property.Name;
+    }
+
+    void orderBy(string parameter)
+    {
+        if (key.Key == parameter & key.Value)
+        {
+            items = items.OrderByDescending(p => p.GetType().GetProperty(parameter).GetValue(p)).ToList();
+            key = new KeyValuePair<string, bool>
+                (key: parameter, value: false);
+        }
+        else
+        {
+            items = items.OrderBy(p => p.GetType().GetProperty(parameter).GetValue(p)).ToList();
+            key = new KeyValuePair<string, bool>
+                (key: parameter, value: true);
+        }
+    }
+}
